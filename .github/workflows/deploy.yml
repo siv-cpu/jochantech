@@ -1,0 +1,50 @@
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql
+        coverage: none
+        
+    - name: Install dependencies
+      run: |
+        composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+        
+    - name: Build assets
+      run: |
+        npm ci
+        npm run build
+        
+    - name: Create deployment package
+      run: |
+        mkdir deployment
+        # Copy necessary files
+        cp -r app bootstrap config database public resources routes storage vendor deployment/
+        cp artisan composer.json deployment/
+        # Create .env template
+        echo "APP_NAME=Jochan Tech" > deployment/.env.example
+        echo "APP_ENV=production" >> deployment/.env.example
+        echo "APP_DEBUG=false" >> deployment/.env.example
+        echo "APP_URL=https://yourdomain.com" >> deployment/.env.example
+        
+    - name: Deploy to Hostinger via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.0
+      with:
+        server: ${{ secrets.FTP_HOST }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./deployment/
+        server-dir: /public_html/
