@@ -36,11 +36,11 @@ jobs:
         cp artisan composer.json deployment/
         # Create .env file with proper formatting
         cd deployment
-        echo 'APP_NAME="JochanTech"' > .env
+        echo 'APP_NAME="Jochan Tech"' > .env
         echo 'APP_ENV=production' >> .env
         echo 'APP_DEBUG=false' >> .env
-        echo 'APP_URL=https://yourdomain.com' >> .env
-        # NOW generate app key
+        echo 'APP_URL=https://jochantech.com' >> .env
+        # Generate app key
         php artisan key:generate --no-interaction --force
         cd ..
         
