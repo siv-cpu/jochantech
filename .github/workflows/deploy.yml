@@ -34,17 +34,22 @@ jobs:
         # Copy necessary files
         cp -r app bootstrap config database public resources routes storage vendor deployment/
         cp artisan composer.json deployment/
-        # Create .env template
-        echo "APP_NAME=Jochan Tech" > deployment/.env.example
-        echo "APP_ENV=production" >> deployment/.env.example
-        echo "APP_DEBUG=false" >> deployment/.env.example
-        echo "APP_URL=https://yourdomain.com" >> deployment/.env.example
+        # Generate app key
+        cd deployment
+        php artisan key:generate --no-interaction --force
+        # Add basic .env configuration
+        echo "APP_NAME=Jochan Tech" >> .env
+        echo "APP_ENV=production" >> .env
+        echo "APP_DEBUG=false" >> .env
+        echo "APP_URL=https://yourdomain.com" >> .env
+        cd ..
         
     - name: Deploy to Hostinger via FTP
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.0
+      uses: SamKirkland/FTP-Deploy-Action@4.3.0
       with:
         server: ${{ secrets.FTP_HOST }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./deployment/
         server-dir: /public_html/
+EOF
